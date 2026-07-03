@@ -29,8 +29,40 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Running with Docker
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Requires Docker with the Compose plugin. `docker-compose.yml` builds the app and
+starts it alongside a MongoDB container, so you don't need a local Mongo or to edit
+`.env` — Compose sets `MONGODB_URI` to the `mongo` service automatically.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# Build the image and start the app + MongoDB
+docker compose up --build
+
+# ...or run detached
+docker compose up -d --build
+```
+
+The app is served at [http://localhost:3000](http://localhost:3000). MongoDB data
+persists in the `taskboard-mongo-data` volume between runs.
+
+```bash
+# Stop the containers
+docker compose down
+
+# Stop and also delete the MongoDB data volume
+docker compose down -v
+```
+
+To stamp the version shown in the stats bar, pass the build arg:
+
+```bash
+NEXT_PUBLIC_APP_VERSION=1.0.0 docker compose up --build
+```
+
+### Building the image directly (without Compose)
+
+```bash
+docker build -t taskboard:latest .
+docker run -p 3000:3000 -e MONGODB_URI="mongodb://<host>:27017/taskboard" taskboard:latest
+```
